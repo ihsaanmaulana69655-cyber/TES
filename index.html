@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ihsaan Maulana | UI/UX Designer & Web Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        dark: '#0a0a0a',
+                        darker: '#050505',
+                        neon: {
+                            cyan: '#00f3ff',
+                            purple: '#bc13fe'
+                        }
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom CSS untuk efek-efek kompleks yang tidak bisa ditangani Tailwind saja */
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5), 0 0 40px rgba(188, 19, 254, 0.3);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-glass:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 243, 255, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Scroll Reveal Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Skill Bar Animations */
+        .skill-bar-fill {
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        /* Cursor / Typing Effect */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+            color: #00f3ff;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(to right, #00f3ff, #bc13fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-neon-cyan selection:text-dark">
+
+    <!-- Interactive Background Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-2xl font-bold font-mono tracking-tighter hover:text-neon-cyan transition-colors">
+                        <span class="text-neon-cyan">&lt;</span>IM<span class="text-neon-purple">/&gt;</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="text-gray-300 hover:text-neon-cyan px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="#about" class="text-gray-300 hover:text-neon-cyan px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#skills" class="text-gray-300 hover:text-neon-cyan px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
+                        <a href="#projects" class="text-gray-300 hover:text-neon-cyan px-3 py-2 rounded-md text-sm font-medium transition-colors">Projects</a>
+                        <a href="#contact" class="bg-transparent border border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-dark px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_20px_rgba(0,243,255,0.6)]">Let's Talk</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-nav absolute w-full border-t border-gray-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 text-center">
+                <a href="#home" class="block text-gray-300 hover:text-neon-cyan px-3 py-2 text-base font-medium">Home</a>
+                <a href="#about" class="block text-gray-300 hover:text-neon-cyan px-3 py-2 text-base font-medium">About</a>
+                <a href="#skills" class="block text-gray-300 hover:text-neon-cyan px-3 py-2 text-base font-medium">Skills</a>
+                <a href="#projects" class="block text-gray-300 hover:text-neon-cyan px-3 py-2 text-base font-medium">Projects</a>
+                <a href="#contact" class="block text-neon-cyan px-3 py-2 text-base font-medium">Let's Talk</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-3/5 text-center md:text-left z-10 reveal-left">
+                <p class="text-neon-cyan font-mono mb-4">Hi, my name is</p>
+                <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+                    Ihsaan Maulana.
+                </h1>
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-400 mb-6 h-12 md:h-16">
+                    I build <span id="typing-text" class="text-gradient typing-cursor"></span>
+                </h2>
+                <p class="text-gray-400 text-lg mb-8 max-w-2xl mx-auto md:mx-0">
+                    A UI/UX Design student with a deep passion for web development. I specialize in bridging the gap between beautiful design and robust technical implementation to create seamless user experiences.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <a href="#projects" class="px-8 py-4 bg-gradient-to-r from-neon-cyan to-blue-600 text-dark font-bold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(0,243,255,0.5)]">
+                        View My Work
+                    </a>
+                    <a href="#contact" class="px-8 py-4 bg-transparent border border-gray-600 text-white font-bold rounded-full transition-all duration-300 hover:border-neon-purple hover:text-neon-purple hover:shadow-[0_0_20px_rgba(188,19,254,0.3)]">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+            
+            <div class="md:w-2/5 mt-16 md:mt-0 z-10 reveal-right hidden md:block">
+                <div class="relative w-72 h-72 mx-auto animate-float">
+                    <!-- Abstract geometric shape instead of image for a modern tech feel -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-neon-cyan to-neon-purple rounded-full blur-2xl opacity-40 animate-pulse"></div>
+                    <div class="relative w-full h-full rounded-2xl border-2 border-white/10 overflow-hidden card-glass flex items-center justify-center bg-darker/50">
+                        <i class="fas fa-code text-8xl text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple"></i>
+                    </div>
+                    
+                    <!-- Floating badges -->
+                    <div class="absolute -top-6 -right-6 card-glass px-4 py-2 rounded-full text-sm font-mono text-neon-cyan shadow-lg">
+                        <i class="fab fa-figma mr-2"></i>Design
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 card-glass px-4 py-2 rounded-full text-sm font-mono text-neon-purple shadow-lg">
+                        <i class="fas fa-laptop-code mr-2"></i>Develop
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce flex flex-col items-center">
+            <span class="text-xs text-gray-500 font-mono mb-2">Scroll</span>
+            <i class="fas fa-chevron-down text-neon-cyan"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-darker relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row gap-16 items-center">
+                <div class="md:w-1/2 reveal-left">
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-gradient-to-r from-neon-cyan to-neon-purple opacity-20 blur-lg rounded-2xl"></div>
+                        <img src="https://images.unsplash.com/photo-1549692520-acc6669e2f0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Workspace" class="relative rounded-2xl grayscale hover:grayscale-0 transition-all duration-500 border border-gray-800 object-cover w-full h-[400px]">
+                    </div>
+                </div>
+                <div class="md:w-1/2 reveal-right">
+                    <div class="flex items-center gap-4 mb-6">
+                        <h2 class="text-3xl md:text-4xl font-bold">About Me</h2>
+                        <div class="h-[1px] bg-gray-700 flex-grow"></div>
+                    </div>
+                    <p class="text-gray-400 mb-4 leading-relaxed">
+                        Hello! I'm <span class="text-neon-cyan">Ihsaan Maulana</span>, a UI/UX Design student who enjoys building things that live on the internet. My interest in web development started when I realized that a great design is only as good as its implementation.
+                    </p>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Fast-forward to today, I've had the privilege of working on various projects, ranging from fitness apps to complex reservation systems. My main focus these days is building accessible, inclusive products and digital experiences for a variety of clients.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-4 font-mono text-sm">
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i class="fas fa-caret-right text-neon-cyan"></i> UI/UX Design
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i class="fas fa-caret-right text-neon-cyan"></i> Front-End Dev
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i class="fas fa-caret-right text-neon-cyan"></i> Usability Testing (SUS)
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i class="fas fa-caret-right text-neon-cyan"></i> Prototyping
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Technical <span class="text-gradient">Arsenal</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Tools and technologies I use to bring ideas to life.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Design & Fundamentals -->
+                <div class="space-y-6 reveal-left" id="skill-bars-1">
+                    <h3 class="text-xl font-mono text-white mb-6 border-b border-gray-800 pb-2"><i class="fas fa-pen-nib text-neon-purple mr-2"></i>Design & Core</h3>
+                    
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">Figma</span>
+                            <span class="text-neon-cyan text-sm">95%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-neon-purple to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="95%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">HTML & CSS</span>
+                            <span class="text-neon-cyan text-sm">90%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-neon-purple to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="90%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">Usability Testing (SUS)</span>
+                            <span class="text-neon-cyan text-sm">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-neon-purple to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Development -->
+                <div class="space-y-6 reveal-right" id="skill-bars-2">
+                    <h3 class="text-xl font-mono text-white mb-6 border-b border-gray-800 pb-2"><i class="fas fa-terminal text-neon-cyan mr-2"></i>Development</h3>
+                    
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">JavaScript</span>
+                            <span class="text-neon-cyan text-sm">80%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-500 to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="80%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">PHP</span>
+                            <span class="text-neon-cyan text-sm">75%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-500 to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="75%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-300 font-medium">WordPress & WooCommerce</span>
+                            <span class="text-neon-cyan text-sm">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-500 to-neon-cyan h-2 rounded-full skill-bar-fill" data-width="85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Tech Stack Icons -->
+            <div class="mt-20 flex flex-wrap justify-center gap-8 reveal">
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#F24E1E] transition-colors"><i class="fab fa-figma"></i></div>
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#E34F26] transition-colors"><i class="fab fa-html5"></i></div>
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#1572B6] transition-colors"><i class="fab fa-css3-alt"></i></div>
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#F7DF1E] transition-colors"><i class="fab fa-js"></i></div>
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#777BB4] transition-colors"><i class="fab fa-php"></i></div>
+                <div class="w-16 h-16 rounded-full card-glass flex items-center justify-center text-2xl hover:text-[#21759B] transition-colors"><i class="fab fa-wordpress"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 bg-darker relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-4 mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold">Featured <span class="text-gradient">Projects</span></h2>
+                <div class="h-[1px] bg-gray-700 flex-grow"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Project 1 -->
+                <div class="card-glass rounded-2xl overflow-hidden group reveal">
+                    <div class="h-60 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-blue-900/50 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="FitTrack" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <p class="text-neon-cyan font-mono text-sm mb-2">Web Application</p>
+                        <h3 class="text-2xl font-bold text-white mb-3">FitTrack</h3>
+                        <p class="text-gray-400 mb-6 text-sm">
+                            A comprehensive fitness tracking web app. Allows users to log workouts, track nutrition, and monitor progress over time with visual data representations and intuitive UI.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">HTML/CSS</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">JS</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">UI/UX</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <a href="#" class="text-white hover:text-neon-cyan transition-colors"><i class="fab fa-github text-xl"></i></a>
+                            <a href="#" class="text-white hover:text-neon-cyan transition-colors"><i class="fas fa-external-link-alt text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="card-glass rounded-2xl overflow-hidden group reveal delay-100">
+                    <div class="h-60 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-purple-900/50 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Futsal Court" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <p class="text-neon-purple font-mono text-sm mb-2">Reservation System</p>
+                        <h3 class="text-2xl font-bold text-white mb-3">Futsal Court Reservation</h3>
+                        <p class="text-gray-400 mb-6 text-sm">
+                            A seamless booking platform for local futsal courts. Features real-time availability, schedule management, and an admin dashboard for court owners.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">PHP</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">MySQL</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">Figma</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <a href="#" class="text-white hover:text-neon-purple transition-colors"><i class="fab fa-github text-xl"></i></a>
+                            <a href="#" class="text-white hover:text-neon-purple transition-colors"><i class="fas fa-external-link-alt text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="card-glass rounded-2xl overflow-hidden group reveal">
+                    <div class="h-60 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-blue-900/50 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1545173168-9f1947eebb7f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="CleanWash" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <p class="text-neon-cyan font-mono text-sm mb-2">Mobile-First App</p>
+                        <h3 class="text-2xl font-bold text-white mb-3">CleanWash Laundry</h3>
+                        <p class="text-gray-400 mb-6 text-sm">
+                            A service application for laundry pick-up and delivery. Highly focused on UX, tested with SUS (System Usability Scale) to ensure optimal customer journey.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">JavaScript</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">SUS Testing</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">Tailwind</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <a href="#" class="text-white hover:text-neon-cyan transition-colors"><i class="fab fa-github text-xl"></i></a>
+                            <a href="#" class="text-white hover:text-neon-cyan transition-colors"><i class="fas fa-external-link-alt text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="card-glass rounded-2xl overflow-hidden group reveal delay-100">
+                    <div class="h-60 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-purple-900/50 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Coffee Shop" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <p class="text-neon-purple font-mono text-sm mb-2">E-Commerce</p>
+                        <h3 class="text-2xl font-bold text-white mb-3">Coffee Shop Catalog</h3>
+                        <p class="text-gray-400 mb-6 text-sm">
+                            A robust e-commerce catalog for an artisanal coffee shop built with WordPress and WooCommerce. Includes custom theme styling and payment gateway integration.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">WordPress</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">WooCommerce</span>
+                            <span class="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 font-mono">PHP</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <a href="#" class="text-white hover:text-neon-purple transition-colors"><i class="fab fa-github text-xl"></i></a>
+                            <a href="#" class="text-white hover:text-neon-purple transition-colors"><i class="fas fa-external-link-alt text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-neon-cyan font-mono mb-4 reveal">What's Next?</p>
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 reveal">Get In Touch</h2>
+            <p class="text-gray-400 mb-12 max-w-2xl mx-auto reveal">
+                Currently open to new opportunities. Whether you have a question, a project idea, or just want to say hi, I'll try my best to get back to you!
+            </p>
+            
+            <form class="card-glass p-8 md:p-12 rounded-2xl text-left reveal mx-auto max-w-2xl relative" onsubmit="event.preventDefault(); alert('Pesan Anda berhasil dikirim secara simulasi!');">
+                <!-- Decorative element -->
+                <div class="absolute -top-px -left-px w-32 h-32 bg-gradient-to-br from-neon-cyan to-transparent opacity-20 rounded-tl-2xl"></div>
+                <div class="absolute -bottom-px -right-px w-32 h-32 bg-gradient-to-tl from-neon-purple to-transparent opacity-20 rounded-br-2xl"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="name" class="block text-sm font-mono text-gray-400 mb-2">Name</label>
+                        <input type="text" id="name" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all" required>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-mono text-gray-400 mb-2">Email</label>
+                        <input type="email" id="email" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label for="message" class="block text-sm font-mono text-gray-400 mb-2">Message</label>
+                    <textarea id="message" rows="5" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-purple focus:ring-1 focus:ring-neon-purple transition-all resize-none" required></textarea>
+                </div>
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold rounded-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(188,19,254,0.4)] transform hover:-translate-y-1">
+                    Send Message <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-800 text-center bg-darker">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center">
+            <div class="flex space-x-6 mb-4">
+                <a href="#" class="text-gray-500 hover:text-neon-cyan transition-colors text-xl"><i class="fab fa-github"></i></a>
+                <a href="#" class="text-gray-500 hover:text-neon-purple transition-colors text-xl"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-gray-500 hover:text-neon-cyan transition-colors text-xl"><i class="fab fa-dribbble"></i></a>
+                <a href="#" class="text-gray-500 hover:text-neon-purple transition-colors text-xl"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p class="text-gray-600 font-mono text-sm">
+                Designed & Built by <span class="text-gray-300">Ihsaan Maulana</span> © 2026
+            </p>
+        </div>
+    </footer>
+
+    <!-- Core JavaScript for Interactivity and Animations -->
+    <script>
+        // --- 1. Typing Effect Logic ---
+        const phrases = [
+            "User Interfaces.", 
+            "Web Applications.", 
+            "Seamless UX.", 
+            "Digital Experiences."
+        ];
+        let currentPhraseIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
+        const typingEl = document.getElementById('typing-text');
+        
+        function typeEffect() {
+            const currentPhrase = phrases[currentPhraseIdx];
+            
+            if (isDeleting) {
+                typingEl.textContent = currentPhrase.substring(0, charIdx - 1);
+                charIdx--;
+            } else {
+                typingEl.textContent = currentPhrase.substring(0, charIdx + 1);
+                charIdx++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            if (!isDeleting && charIdx === currentPhrase.length) {
+                typeSpeed = 2000; // Pause at end of word
+                isDeleting = true;
+            } else if (isDeleting && charIdx === 0) {
+                isDeleting = false;
+                currentPhraseIdx = (currentPhraseIdx + 1) % phrases.length;
+                typeSpeed = 500; // Pause before new word
+            }
+
+            setTimeout(typeEffect, typeSpeed);
+        }
+        
+        // Start typing effect
+        setTimeout(typeEffect, 1000);
+
+        // --- 2. Scroll Reveal & Skill Bars Animation (Intersection Observer) ---
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+        const skillBars = document.querySelectorAll('.skill-bar-fill');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Trigger skill bar animation if it's the skills section
+                    if (entry.target.id === 'skill-bars-1' || entry.target.id === 'skill-bars-2') {
+                        const bars = entry.target.querySelectorAll('.skill-bar-fill');
+                        bars.forEach(bar => {
+                            bar.style.width = bar.getAttribute('data-width');
+                        });
+                    }
+                    
+                    // Optional: Stop observing once revealed
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, observerOptions);
+
+        revealElements.forEach(el => observer.observe(el));
+        // Add skill bar sections to observer explicitly
+        observer.observe(document.getElementById('skill-bars-1'));
+        observer.observe(document.getElementById('skill-bars-2'));
+
+        // --- 3. Navbar Styling on Scroll ---
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(5, 5, 5, 0.9)';
+                navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.5)';
+            } else {
+                navbar.style.background = 'rgba(10, 10, 10, 0.7)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+
+        // --- 4. Mobile Menu Toggle ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // --- 5. Interactive Particle Network Background (Complex JS) ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const properties = {
+            bgColor: '#050505',
+            particleColor: '#00f3ff', // Cyan
+            particleRadius: 2,
+            count: 70,
+            particleMaxVelocity: 0.5,
+            lineLength: 150,
+            particleLife: 6,
+        };
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.velocityX = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                this.velocityY = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                this.life = Math.random() * properties.particleLife * 60;
+                
+                // Randomly choose between cyan and purple
+                this.color = Math.random() > 0.5 ? '#00f3ff' : '#bc13fe';
+            }
+
+            position() {
+                this.x + this.velocityX > width && this.velocityX > 0 || this.x + this.velocityX < 0 && this.velocityX < 0 ? this.velocityX *= -1 : this.velocityX;
+                this.y + this.velocityY > height && this.velocityY > 0 || this.y + this.velocityY < 0 && this.velocityY < 0 ? this.velocityY *= -1 : this.velocityY;
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+            }
+
+            reDraw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, properties.particleRadius, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+
+            reCalculateLife() {
+                if(this.life < 1){
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.velocityX = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                    this.velocityY = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                    this.life = Math.random() * properties.particleLife * 60;
+                }
+                this.life--;
+            }
+        }
+
+        function reDrawBackground() {
+            ctx.fillStyle = properties.bgColor;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function drawLines() {
+            let x1, y1, x2, y2, length, opacity;
+            for (let i in particles) {
+                for (let j in particles) {
+                    x1 = particles[i].x;
+                    y1 = particles[i].y;
+                    x2 = particles[j].x;
+                    y2 = particles[j].y;
+                    length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    
+                    if (length < properties.lineLength) {
+                        opacity = 1 - length / properties.lineLength;
+                        ctx.lineWidth = '0.5';
+                        // Line color gradient approximation
+                        ctx.strokeStyle = `rgba(0, 243, 255, ${opacity * 0.5})`;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function reDrawParticles() {
+            for (let i in particles) {
+                particles[i].reCalculateLife();
+                particles[i].position();
+                particles[i].reDraw();
+            }
+        }
+
+        function loop() {
+            reDrawBackground();
+            reDrawParticles();
+            drawLines();
+            requestAnimationFrame(loop);
+        }
+
+        function init() {
+            for (let i = 0; i < properties.count; i++) {
+                particles.push(new Particle);
+            }
+            loop();
+        }
+
+        // Initialize Canvas Animation
+        init();
+
+        // Mouse interaction with particles
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Attract particles to mouse slightly
+            for(let i = 0; i < particles.length; i++) {
+                const dx = mouseX - particles[i].x;
+                const dy = mouseY - particles[i].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if(dist < 200) {
+                    particles[i].x += dx * 0.005;
+                    particles[i].y += dy * 0.005;
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
